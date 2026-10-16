@@ -22,7 +22,7 @@ jobs:
           packages: 'platform-tools'
       - name: Install Android API
         run: |
-          sdkmanager "platforms;android-37" "build-tools;36.0.0"
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
       - uses: gradle/actions/setup-gradle@v4
       - name: Apply experimental source patch
@@ -34,6 +34,7 @@ jobs:
           out=Path("/tmp/drawanywhere_study_patch.py")
           out.write_bytes(zlib.decompress(base64.b64decode(p.read_text().strip())))
           PY
+          sed -i 's/compileSdk = 37/compileSdk = 36/' app/build.gradle.kts
           python3 /tmp/drawanywhere_study_patch.py .
           git diff --check
       - name: Build APK
