@@ -39,6 +39,34 @@ jobs:
           PY
           sed -i 's/compileSdk = 37/compileSdk = 36/' app/build.gradle.kts
           python3 /tmp/drawanywhere_study_patch.py .
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("app/src/main/java/com/shezik/drawanywhere/MainService.kt")
+          t=p.read_text()
+          t=t.replace("import kotlinx.coroutines.launch", "import kotlinx.coroutines.launch\nimport kotlinx.coroutines.withContext")
+          anchor="    override fun onBind(intent: Intent?): IBinder? = null"
+          funcs="""    private var externalUiWasPassthrough = false
+    private var externalUiCanvasWasVisible = true
+
+    private fun prepareExternalUi() {
+        externalUiWasPassthrough = viewModel.uiState.value.canvasPassthrough
+        externalUiCanvasWasVisible = viewModel.uiState.value.canvasVisible
+        viewModel.setCanvasPassthrough(true)
+        viewModel.setCanvasVisibility(false)
+    }
+
+    private fun restoreAfterExternalUi() {
+        viewModel.setCanvasVisibility(externalUiCanvasWasVisible)
+        viewModel.setCanvasPassthrough(externalUiWasPassthrough)
+    }
+
+"""
+          assert anchor in t
+          t=t.replace(anchor,funcs+anchor)
+          p.write_text(t)
+          v=Path("gradle/libs.versions.toml")
+          v.write_text(v.read_text().replace('coreKtx = "1.19.0"','coreKtx = "1.17.0"'))
+          PY
           git diff --check
       - name: Build APK
         run: |
