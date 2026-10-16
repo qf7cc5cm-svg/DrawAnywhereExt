@@ -6,7 +6,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -63,3 +63,18 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 30
+      - name: Publish phone-installable APK
+        if: github.event_name == 'push' && github.ref == 'refs/heads/study-apk'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk DrawAnywhere-Study.apk
+          if gh release view study-preview >/dev/null 2>&1; then
+            gh release upload study-preview DrawAnywhere-Study.apk --clobber
+          else
+            gh release create study-preview DrawAnywhere-Study.apk \
+              --title "DrawAnywhere Study (experimental APK)" \
+              --target "$GITHUB_SHA" \
+              --notes "Experimental Android debug build with study overlay additions. This build has not been tested on a physical phone. Install at your own risk; keep the original F-Droid DrawAnywhere until confirmed." \
+              --prerelease
+          fi
