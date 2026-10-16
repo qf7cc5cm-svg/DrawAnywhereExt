@@ -32,7 +32,9 @@ jobs:
           from pathlib import Path
           p=Path("study-patch/patch.py.zlib.b64")
           out=Path("/tmp/drawanywhere_study_patch.py")
-          out.write_bytes(zlib.decompress(base64.b64decode(p.read_text().strip() + "===")))
+          raw=zlib.decompress(base64.b64decode(p.read_text().strip() + "===")).decode()
+          raw=raw.replace("tool.onStart(newPoint)\\n    }\\n    fun updateLatestStroke", "tool.onStart(newPoint)\\n    }\\n\\n    fun updateLatestStroke")
+          out.write_text(raw)
           PY
           sed -i 's/compileSdk = 37/compileSdk = 36/' app/build.gradle.kts
           python3 /tmp/drawanywhere_study_patch.py .
