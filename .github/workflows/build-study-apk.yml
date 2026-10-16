@@ -43,24 +43,9 @@ jobs:
           from pathlib import Path
           p=Path("app/src/main/java/com/shezik/drawanywhere/MainService.kt")
           t=p.read_text()
-          t=t.replace("import kotlinx.coroutines.launch", "import kotlinx.coroutines.launch\nimport kotlinx.coroutines.withContext")
+          t=t.replace("import kotlinx.coroutines.launch", "import kotlinx.coroutines.launch" + chr(10) + "import kotlinx.coroutines.withContext")
           anchor="    override fun onBind(intent: Intent?): IBinder? = null"
-          funcs="""    private var externalUiWasPassthrough = false
-    private var externalUiCanvasWasVisible = true
-
-    private fun prepareExternalUi() {
-        externalUiWasPassthrough = viewModel.uiState.value.canvasPassthrough
-        externalUiCanvasWasVisible = viewModel.uiState.value.canvasVisible
-        viewModel.setCanvasPassthrough(true)
-        viewModel.setCanvasVisibility(false)
-    }
-
-    private fun restoreAfterExternalUi() {
-        viewModel.setCanvasVisibility(externalUiCanvasWasVisible)
-        viewModel.setCanvasPassthrough(externalUiWasPassthrough)
-    }
-
-"""
+          funcs="    private var externalUiWasPassthrough = false\n    private var externalUiCanvasWasVisible = true\n\n    private fun prepareExternalUi() {\n        externalUiWasPassthrough = viewModel.uiState.value.canvasPassthrough\n        externalUiCanvasWasVisible = viewModel.uiState.value.canvasVisible\n        viewModel.setCanvasPassthrough(true)\n        viewModel.setCanvasVisibility(false)\n    }\n\n    private fun restoreAfterExternalUi() {\n        viewModel.setCanvasVisibility(externalUiCanvasWasVisible)\n        viewModel.setCanvasPassthrough(externalUiWasPassthrough)\n    }\n\n"
           assert anchor in t
           t=t.replace(anchor,funcs+anchor)
           p.write_text(t)
