@@ -34,6 +34,7 @@ jobs:
           out=Path("/tmp/drawanywhere_study_patch.py")
           raw=zlib.decompress(base64.b64decode(p.read_text().strip() + "===")).decode()
           raw=raw.replace("tool.onStart(newPoint)" + chr(10) + "    }" + chr(10) + "    fun updateLatestStroke", "tool.onStart(newPoint)" + chr(10) + "    }" + chr(10) + chr(10) + "    fun updateLatestStroke")
+          raw=raw.replace("removeExpiredStrokes(System.currentTimeMillis())" + chr(10) + "        canvas.save()", "removeExpiredStrokes(System.currentTimeMillis())" + chr(10) + chr(10) + "        canvas.save()")
           out.write_text(raw)
           PY
           sed -i 's/compileSdk = 37/compileSdk = 36/' app/build.gradle.kts
